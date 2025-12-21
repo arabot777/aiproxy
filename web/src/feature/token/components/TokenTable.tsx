@@ -10,7 +10,7 @@ import { Token } from '@/types/token'
 import { Button } from '@/components/ui/button'
 import {
     MoreHorizontal, Plus, Trash2, RefreshCcw,
-    PowerOff, Power, Copy
+    PowerOff, Power, Copy, Edit
 } from 'lucide-react'
 import {
     DropdownMenu, DropdownMenuContent,
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Card } from '@/components/ui/card'
 import { TokenDialog } from './TokenDialog'
+import { TokenEditDialog } from './TokenEditDialog'
 import { Loader2 } from 'lucide-react'
 import { DataTable } from '@/components/table/motion-data-table'
 import { DeleteTokenDialog } from './DeleteTokenDialog'
@@ -33,8 +34,10 @@ export function TokenTable() {
 
     // 状态管理
     const [tokenDialogOpen, setTokenDialogOpen] = useState(false)
+    const [editDialogOpen, setEditDialogOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null)
+    const [selectedToken, setSelectedToken] = useState<Token | null>(null)
     const sentinelRef = useRef<HTMLDivElement>(null)
     const [isRefreshAnimating, setIsRefreshAnimating] = useState(false)
 
@@ -92,6 +95,12 @@ export function TokenTable() {
     // 打开创建Token对话框
     const openCreateDialog = () => {
         setTokenDialogOpen(true)
+    }
+
+    // 打开编辑对话框
+    const openEditDialog = (token: Token) => {
+        setSelectedToken(token)
+        setEditDialogOpen(true)
     }
 
     // 打开删除对话框
@@ -182,6 +191,26 @@ export function TokenTable() {
             cell: ({ row }) => <div>{row.original.request_count}</div>,
         },
         {
+            accessorKey: 'quota',
+            header: () => <div className="font-medium py-3.5 whitespace-nowrap">{t("token.quota")}</div>,
+            cell: ({ row }) => <div className="font-mono">¥{row.original.quota.toFixed(6)}</div>,
+        },
+        {
+            accessorKey: 'used_amount',
+            header: () => <div className="font-medium py-3.5 whitespace-nowrap">{t("token.usedAmount")}</div>,
+            cell: ({ row }) => <div className="font-mono">¥{row.original.used_amount.toFixed(6)}</div>,
+        },
+        {
+            accessorKey: 'available',
+            header: () => <div className="font-medium py-3.5 whitespace-nowrap">{t("token.available")}</div>,
+            cell: ({ row }) => {
+                const available = row.original.quota - row.original.used_amount
+                return <div className={cn("font-mono", available < 0 ? "text-destructive" : "text-green-600 dark:text-green-400")}>
+                    ¥{available.toFixed(6)}
+                </div>
+            },
+        },
+        {
             accessorKey: 'status',
             header: () => <div className="font-medium py-3.5 whitespace-nowrap">{t("token.status")}</div>,
             cell: ({ row }) => (
@@ -219,6 +248,12 @@ export function TokenTable() {
                         >
                             <Copy className="mr-2 h-4 w-4" />
                             {t("token.copyKey")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => openEditDialog(row.original)}
+                        >
+                            <Edit className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-500" />
+                            {t("token.editQuota")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => handleStatusChange(row.original.id, row.original.status)}
@@ -320,6 +355,13 @@ export function TokenTable() {
             <TokenDialog
                 open={tokenDialogOpen}
                 onOpenChange={setTokenDialogOpen}
+            />
+
+            {/* Token编辑对话框 */}
+            <TokenEditDialog
+                open={editDialogOpen}
+                onOpenChange={setEditDialogOpen}
+                token={selectedToken}
             />
 
             {/* 删除Token对话框 */}

@@ -69,6 +69,25 @@ const pluginSchema = z.object({
     }).optional(),
 }).optional()
 
+// 价格配置验证
+const priceSchema = z.object({
+    input_price: z.number().nonnegative('Input price must be non-negative').optional(),
+    input_price_unit: z.number().positive('Input price unit must be positive').optional(),
+    output_price: z.number().nonnegative('Output price must be non-negative').optional(),
+    output_price_unit: z.number().positive('Output price unit must be positive').optional(),
+    per_request_price: z.number().nonnegative('Per request price must be non-negative').optional(),
+    cache_creation_price: z.number().nonnegative('Cache creation price must be non-negative').optional(),
+    cache_creation_price_unit: z.number().positive('Cache creation price unit must be positive').optional(),
+    cached_price: z.number().nonnegative('Cached price must be non-negative').optional(),
+    cached_price_unit: z.number().positive('Cached price unit must be positive').optional(),
+    image_input_price: z.number().nonnegative('Image input price must be non-negative').optional(),
+    image_input_price_unit: z.number().positive('Image input price unit must be positive').optional(),
+    image_output_price: z.number().nonnegative('Image output price must be non-negative').optional(),
+    image_output_price_unit: z.number().positive('Image output price unit must be positive').optional(),
+    web_search_price: z.number().nonnegative('Web search price must be non-negative').optional(),
+    web_search_price_unit: z.number().positive('Web search price unit must be positive').optional(),
+}).optional()
+
 export const modelCreateSchema = z.object({
     model: z.string().min(1, 'Model name is required'),
     type: z.number().min(0, 'Type is required'),
@@ -79,6 +98,7 @@ export const modelCreateSchema = z.object({
     max_error_rate: z.number().min(0, 'Error rate must be at least 0').max(1, 'Error rate must be at most 1').optional(),
     force_save_detail: z.boolean().optional(),
     plugin: pluginSchema,
+    price: priceSchema,
 })
 
 export type ModelCreateForm = z.infer<typeof modelCreateSchema>

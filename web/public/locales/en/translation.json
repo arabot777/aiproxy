@@ -23,7 +23,10 @@
     "loading": "Loading...",
     "selectDateRange": "Select date range",
     "success": "Success",
-    "optional": "(Optional)"
+    "optional": "(Optional)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
   },
   "error": {
     "loading": "Failed to load data",
@@ -122,6 +125,9 @@
     "key": "API Key",
     "lastUsed": "Last Used",
     "requestCount": "Request Count",
+    "quota": "Quota",
+    "usedAmount": "Used",
+    "available": "Available",
     "status": "Status",
     "enabled": "Enabled",
     "disabled": "Disabled",
@@ -132,6 +138,8 @@
     "disable": "Disable",
     "refresh": "Refresh",
     "copyKey": "Copy Key",
+    "editQuota": "Edit Quota",
+    "quotaDescription": "Set to 0 for unlimited quota, greater than 0 for limited quota",
     "never": "Never used",
     "invalidDate": "Invalid date",
     "noResults": "No API Keys found",
@@ -180,6 +188,10 @@
     "loading": "Loading...",
     "noChannel": "No available channels",
     "availableChannels": "Available Channels",
+    "price": "Price",
+    "noPriceConfigured": "No price configured",
+    "inputPrice": "Input",
+    "outputPrice": "Output",
     "dialog": {
       "createTitle": "Create Model",
       "updateTitle": "Update Model",
@@ -266,6 +278,14 @@
         "title": "Stream Fake Plugin",
         "description": "Convert non-streaming requests to streaming responses for better user experience",
         "enable": "Enable Stream Fake"
+      },
+      "priceConfiguration": "Price Configuration",
+      "priceConfigurationDescription": "Configure billing prices for this model",
+      "price": {
+        "inputPrice": "Input Price",
+        "outputPrice": "Output Price",
+        "priceUnit": "Price Unit (tokens)",
+        "perRequestPrice": "Per Request Price"
       }
     },
     "deleteDialog": {
@@ -418,6 +438,7 @@
     "inputTokens": "Input Tokens",
     "outputTokens": "Output Tokens",
     "duration": "Duration(s)",
+    "amount": "Amount ¥",
     "state": "State",
     "time": "Time",
     "details": "Details",

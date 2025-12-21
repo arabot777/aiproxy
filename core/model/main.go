@@ -11,6 +11,7 @@ import (
 	"github.com/labring/aiproxy/core/common"
 	"github.com/labring/aiproxy/core/common/config"
 	"github.com/labring/aiproxy/core/common/env"
+
 	// import fastjson serializer
 	_ "github.com/labring/aiproxy/core/common/fastJSONSerializer"
 	"github.com/labring/aiproxy/core/common/notify"
@@ -35,6 +36,13 @@ func chooseDB(envName string) (*gorm.DB, error) {
 		log.Info("using PostgreSQL as database")
 
 		return OpenPostgreSQL(dsn)
+	case strings.HasPrefix(dsn, "mysql://"):
+		// Use MySQL
+		log.Info("using MySQL as database")
+
+		common.UsingMySQL = true
+
+		return OpenMySQL(dsn)
 	default:
 		// Use SQLite
 		absPath, err := filepath.Abs(common.SQLitePath)
@@ -85,7 +93,12 @@ func OpenPostgreSQL(dsn string) (*gorm.DB, error) {
 
 func OpenMySQL(dsn string) (*gorm.DB, error) {
 	return gorm.Open(mysql.New(mysql.Config{
-		DSN: strings.TrimPrefix(dsn, "mysql://"),
+		DSN:                       strings.TrimPrefix(dsn, "mysql://"),
+		DefaultStringSize:         256,
+		DisableDatetimePrecision:  true,
+		DontSupportRenameIndex:    true,
+		DontSupportRenameColumn:   true,
+		SkipInitializeWithVersion: false,
 	}), &gorm.Config{
 		PrepareStmt:                              true, // precompile SQL
 		TranslateError:                           true,
@@ -326,6 +339,30 @@ func CloseDB() error {
 	}
 
 	return closeDB(DB)
+}
+
+// CreateIndexIfNotExists creates an index if it doesn't exist
+// MySQL doesn't support CREATE INDEX IF NOT EXISTS, so we need to check first
+func CreateIndexIfNotExists(db *gorm.DB, indexName, tableName, sql string) error {
+	if common.UsingMySQL {
+		// Check if index exists in MySQL
+		var count int64
+		err := db.Raw("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?", tableName, indexName).Scan(&count).Error
+		if err != nil {
+			return err
+		}
+
+		if count > 0 {
+			return nil
+		}
+
+		// Create index without IF NOT EXISTS
+		return db.Exec(sql).Error
+	}
+
+	// For SQLite and PostgreSQL, use CREATE INDEX IF NOT EXISTS
+	sqlWithCheck := "CREATE INDEX IF NOT EXISTS " + sql[len("CREATE INDEX "):]
+	return db.Exec(sqlWithCheck).Error
 }
 
 func ignoreNoSuchTable(err error) bool {

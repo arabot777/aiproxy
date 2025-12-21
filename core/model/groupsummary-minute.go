@@ -39,14 +39,18 @@ func (l *GroupSummaryMinute) BeforeCreate(_ *gorm.DB) (err error) {
 }
 
 func CreateGroupSummaryMinuteIndexs(db *gorm.DB) error {
-	indexes := []string{
-		"CREATE INDEX IF NOT EXISTS idx_groupsummary_minute_group_minute ON group_summary_minutes (group_id, minute_timestamp DESC)",
-		"CREATE INDEX IF NOT EXISTS idx_groupsummary_minute_group_token_minute ON group_summary_minutes (group_id, token_name, minute_timestamp DESC)",
-		"CREATE INDEX IF NOT EXISTS idx_groupsummary_minute_group_model_minute ON group_summary_minutes (group_id, model, minute_timestamp DESC)",
+	indexes := []struct {
+		name  string
+		sql   string
+		table string
+	}{
+		{"idx_groupsummary_minute_group_minute", "CREATE INDEX idx_groupsummary_minute_group_minute ON group_summary_minutes (group_id, minute_timestamp DESC)", "group_summary_minutes"},
+		{"idx_groupsummary_minute_group_token_minute", "CREATE INDEX idx_groupsummary_minute_group_token_minute ON group_summary_minutes (group_id, token_name, minute_timestamp DESC)", "group_summary_minutes"},
+		{"idx_groupsummary_minute_group_model_minute", "CREATE INDEX idx_groupsummary_minute_group_model_minute ON group_summary_minutes (group_id, model, minute_timestamp DESC)", "group_summary_minutes"},
 	}
 
 	for _, index := range indexes {
-		if err := db.Exec(index).Error; err != nil {
+		if err := CreateIndexIfNotExists(db, index.name, index.table, index.sql); err != nil {
 			return err
 		}
 	}

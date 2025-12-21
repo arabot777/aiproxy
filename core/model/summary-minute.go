@@ -54,13 +54,17 @@ func validateMinuteTimestamp(minuteTimestamp int64) error {
 }
 
 func CreateSummaryMinuteIndexs(db *gorm.DB) error {
-	indexes := []string{
-		"CREATE INDEX IF NOT EXISTS idx_summary_minute_channel_minute ON summary_minutes (channel_id, minute_timestamp DESC)",
-		"CREATE INDEX IF NOT EXISTS idx_summary_minute_model_minute ON summary_minutes (model, minute_timestamp DESC)",
+	indexes := []struct {
+		name  string
+		sql   string
+		table string
+	}{
+		{"idx_summary_minute_channel_minute", "CREATE INDEX idx_summary_minute_channel_minute ON summary_minutes (channel_id, minute_timestamp DESC)", "summary_minutes"},
+		{"idx_summary_minute_model_minute", "CREATE INDEX idx_summary_minute_model_minute ON summary_minutes (model, minute_timestamp DESC)", "summary_minutes"},
 	}
 
 	for _, index := range indexes {
-		if err := db.Exec(index).Error; err != nil {
+		if err := CreateIndexIfNotExists(db, index.name, index.table, index.sql); err != nil {
 			return err
 		}
 	}

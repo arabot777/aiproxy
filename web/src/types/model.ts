@@ -11,7 +11,9 @@ export interface ModelConfigDetail {
 
 export interface ModelPrice {
     input_price: number
+    input_price_unit?: number
     output_price: number
+    output_price_unit?: number
     per_request_price: number
     cache_creation_price?: number
     cache_creation_price_unit?: number

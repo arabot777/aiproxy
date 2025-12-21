@@ -47,6 +47,13 @@ interface ModelFormProps {
         max_error_rate?: number
         force_save_detail?: boolean
         plugin?: Plugin
+        price?: {
+            input_price?: number
+            input_price_unit?: number
+            output_price?: number
+            output_price_unit?: number
+            per_request_price?: number
+        }
     }
 }
 
@@ -102,7 +109,14 @@ export function ModelForm({
                 "web-search": { enable: false, search_from: [], ...defaultValues.plugin?.["web-search"] },
                 "think-split": { enable: false, ...defaultValues.plugin?.["think-split"] },
                 "stream-fake": { enable: false, ...defaultValues.plugin?.["stream-fake"] },
-            }
+            },
+            price: defaultValues.price ? {
+                input_price: defaultValues.price.input_price,
+                input_price_unit: defaultValues.price.input_price_unit,
+                output_price: defaultValues.price.output_price,
+                output_price_unit: defaultValues.price.output_price_unit,
+                per_request_price: defaultValues.price.per_request_price,
+            } : undefined
         },
     })
 
@@ -281,17 +295,31 @@ export function ModelForm({
             })
         }
 
+        // Prepare price data
+        const priceData = data.price && (
+            data.price.input_price !== undefined ||
+            data.price.output_price !== undefined ||
+            data.price.per_request_price !== undefined
+        ) ? {
+            ...(data.price.input_price !== undefined && { input_price: Number(data.price.input_price) }),
+            ...(data.price.input_price_unit !== undefined && { input_price_unit: Number(data.price.input_price_unit) }),
+            ...(data.price.output_price !== undefined && { output_price: Number(data.price.output_price) }),
+            ...(data.price.output_price_unit !== undefined && { output_price_unit: Number(data.price.output_price_unit) }),
+            ...(data.price.per_request_price !== undefined && { per_request_price: Number(data.price.per_request_price) }),
+        } : undefined
+
         // Prepare data for API - 如果没有启用的插件，则不传递 plugin 字段
-        const formData: { 
-            model?: string; 
-            type: number; 
+        const formData: {
+            model?: string;
+            type: number;
             rpm?: number;
             tpm?: number;
             retry_times?: number;
             timeout?: number;
             max_error_rate?: number;
             force_save_detail?: boolean;
-            plugin?: Plugin 
+            plugin?: Plugin;
+            price?: typeof priceData;
         } = {
             type: Number(data.type),
             ...(data.rpm !== undefined && { rpm: Number(data.rpm) }),
@@ -300,7 +328,8 @@ export function ModelForm({
             ...(data.timeout !== undefined && { timeout: Number(data.timeout) }),
             ...(data.max_error_rate !== undefined && { max_error_rate: Number(data.max_error_rate) }),
             ...(data.force_save_detail !== undefined && { force_save_detail: data.force_save_detail }),
-            ...(Object.keys(pluginData).length > 0 && { plugin: pluginData as Plugin })
+            ...(Object.keys(pluginData).length > 0 && { plugin: pluginData as Plugin }),
+            ...(priceData && { price: priceData })
         }
 
         if (mode === 'create') {
@@ -314,7 +343,8 @@ export function ModelForm({
                 ...(data.timeout !== undefined && { timeout: Number(data.timeout) }),
                 ...(data.max_error_rate !== undefined && { max_error_rate: Number(data.max_error_rate) }),
                 ...(data.force_save_detail !== undefined && { force_save_detail: data.force_save_detail }),
-                ...(Object.keys(pluginData).length > 0 && { plugin: pluginData as Plugin })
+                ...(Object.keys(pluginData).length > 0 && { plugin: pluginData as Plugin }),
+                ...(priceData && { price: priceData })
             }, {
                 onSuccess: () => {
                     // Reset form
@@ -534,6 +564,117 @@ export function ModelForm({
                             </FormItem>
                         )}
                     />
+
+                    {/* Price Configuration Section */}
+                    <div className="space-y-4 border-t pt-6">
+                        <div>
+                            <h3 className="text-lg font-medium">{t("model.dialog.priceConfiguration")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("model.dialog.priceConfigurationDescription")}</p>
+                        </div>
+
+                        {/* Input Price */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="price.input_price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("model.dialog.price.inputPrice")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="0.00"
+                                                step="0.0001"
+                                                {...field}
+                                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="price.input_price_unit"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("model.dialog.price.priceUnit")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="1000000"
+                                                {...field}
+                                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Output Price */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="price.output_price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("model.dialog.price.outputPrice")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="0.00"
+                                                step="0.0001"
+                                                {...field}
+                                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="price.output_price_unit"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("model.dialog.price.priceUnit")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="1000000"
+                                                {...field}
+                                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Per Request Price */}
+                        <FormField
+                            control={form.control}
+                            name="price.per_request_price"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("model.dialog.price.perRequestPrice")} {t("common.optional")}</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            placeholder="0.00"
+                                            step="0.0001"
+                                            {...field}
+                                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
                     {/* Plugin Configuration Section */}
                     <div className="space-y-6">

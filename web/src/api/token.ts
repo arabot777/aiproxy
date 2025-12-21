@@ -1,6 +1,6 @@
 // src/api/token.ts
-import { get, post, del } from './index'
-import { TokensResponse, Token,  TokenStatusRequest } from '@/types/token'
+import { get, post, del, put } from './index'
+import { TokensResponse, Token, TokenStatusRequest, TokenUpdateRequest } from '@/types/token'
 
 export const tokenApi = {
     getTokens: async (page: number, perPage: number): Promise<TokensResponse> => {
@@ -29,5 +29,10 @@ export const tokenApi = {
     updateTokenStatus: async (id: number, status: TokenStatusRequest): Promise<void> => {
         await post(`tokens/${id}/status`, status)
         return
+    },
+
+    updateToken: async (id: number, data: TokenUpdateRequest): Promise<Token> => {
+        const response = await put<Token>(`tokens/${id}`, data)
+        return response
     }
 }

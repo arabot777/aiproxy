@@ -227,6 +227,39 @@ export function ModelTable() {
         );
       },
     },
+    {
+      accessorKey: "price",
+      header: () => (
+        <div className="font-medium py-3.5">{t("model.price")}</div>
+      ),
+      cell: ({ row }) => {
+        const price = row.original.price;
+        if (!price) {
+          return (
+            <div className="text-muted-foreground text-sm">
+              {t("model.noPriceConfigured")}
+            </div>
+          );
+        }
+
+        // 计算每1k tokens的价格
+        const inputPricePerK = price.input_price / (price.input_price_unit || 1000000) * 1000;
+        const outputPricePerK = price.output_price / (price.output_price_unit || 1000000) * 1000;
+
+        return (
+          <div className="flex flex-col gap-0.5 text-sm">
+            <div className="font-mono text-xs">
+              <span className="text-muted-foreground">{t("model.inputPrice")}:</span>{" "}
+              <span className="text-foreground">¥{inputPricePerK.toFixed(4)}/1k tokens</span>
+            </div>
+            <div className="font-mono text-xs">
+              <span className="text-muted-foreground">{t("model.outputPrice")}:</span>{" "}
+              <span className="text-foreground">¥{outputPricePerK.toFixed(4)}/1k tokens</span>
+            </div>
+          </div>
+        );
+      },
+    },
     // {
     //     accessorKey: 'owner',
     //     header: () => <div className="font-medium py-3.5">{t("model.owner")}</div>,

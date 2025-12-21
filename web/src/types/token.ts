@@ -27,3 +27,14 @@ export interface TokenCreateRequest {
 export interface TokenStatusRequest {
     status: number
 }
+
+export interface TokenUpdateRequest {
+    name?: string
+    subnets?: string[]
+    models?: string[]
+    status?: number
+    quota?: number
+    period_quota?: number
+    period_type?: string
+    period_last_update_time?: number
+}

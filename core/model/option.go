@@ -18,14 +18,14 @@ import (
 )
 
 type Option struct {
-	Key   string `gorm:"size:64;primaryKey" json:"key"`
-	Value string `gorm:"type:text"          json:"value"`
+	Key   string `gorm:"column:key;size:64;primaryKey" json:"key"`
+	Value string `gorm:"type:text"                     json:"value"`
 }
 
 func GetAllOption() ([]*Option, error) {
 	var options []*Option
 
-	err := DB.Where("key IN (?)", optionKeys).Find(&options).Error
+	err := DB.Where("`key` IN (?)", optionKeys).Find(&options).Error
 	return options, err
 }
 
@@ -36,7 +36,7 @@ func GetOption(key string) (*Option, error) {
 
 	var option Option
 
-	err := DB.Where("key = ?", key).First(&option).Error
+	err := DB.Where("`key` = ?", key).First(&option).Error
 
 	return &option, err
 }

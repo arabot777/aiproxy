@@ -63,6 +63,13 @@ func (znf *ZeroNullFloat64) Scan(value any) error {
 	}
 
 	switch v := value.(type) {
+	case []byte:
+		// MySQL may return decimal/numeric as []byte
+		vf, err := strconv.ParseFloat(string(v), 64)
+		if err != nil {
+			return err
+		}
+		*znf = ZeroNullFloat64(vf)
 	case string:
 		vf, err := strconv.ParseFloat(v, 64)
 		if err != nil {
@@ -105,6 +112,13 @@ func (zni *ZeroNullInt64) Scan(value any) error {
 		*zni = ZeroNullInt64(v)
 	case int64:
 		*zni = ZeroNullInt64(v)
+	case []byte:
+		// MySQL may return decimal/numeric as []byte
+		vf, err := strconv.ParseInt(string(v), 10, 64)
+		if err != nil {
+			return err
+		}
+		*zni = ZeroNullInt64(vf)
 	case string:
 		vf, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {

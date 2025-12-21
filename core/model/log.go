@@ -73,48 +73,61 @@ type Log struct {
 }
 
 func CreateLogIndexes(db *gorm.DB) error {
-	var indexes []string
-	if common.UsingSQLite {
-		// not support INCLUDE
-		indexes = []string{
-			// used by global search logs
-			"CREATE INDEX IF NOT EXISTS idx_model_creat ON logs (model, created_at DESC)",
-			// used by global search logs
-			"CREATE INDEX IF NOT EXISTS idx_channel_creat ON logs (channel_id, created_at DESC)",
-			// used by global search logs
-			"CREATE INDEX IF NOT EXISTS idx_channel_model_creat ON logs (channel_id, model, created_at DESC)",
+	var indexes []struct {
+		name  string
+		sql   string
+		table string
+	}
 
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_creat ON logs (group_id, created_at DESC)",
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_token_creat ON logs (group_id, token_name, created_at DESC)",
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_model_creat ON logs (group_id, model, created_at DESC)",
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_token_model_creat ON logs (group_id, token_name, model, created_at DESC)",
+	if common.UsingSQLite {
+		// SQLite: not support INCLUDE
+		indexes = []struct {
+			name  string
+			sql   string
+			table string
+		}{
+			{"idx_model_creat", "CREATE INDEX idx_model_creat ON logs (model, created_at DESC)", "logs"},
+			{"idx_channel_creat", "CREATE INDEX idx_channel_creat ON logs (channel_id, created_at DESC)", "logs"},
+			{"idx_channel_model_creat", "CREATE INDEX idx_channel_model_creat ON logs (channel_id, model, created_at DESC)", "logs"},
+			{"idx_group_creat", "CREATE INDEX idx_group_creat ON logs (group_id, created_at DESC)", "logs"},
+			{"idx_group_token_creat", "CREATE INDEX idx_group_token_creat ON logs (group_id, token_name, created_at DESC)", "logs"},
+			{"idx_group_model_creat", "CREATE INDEX idx_group_model_creat ON logs (group_id, model, created_at DESC)", "logs"},
+			{"idx_group_token_model_creat", "CREATE INDEX idx_group_token_model_creat ON logs (group_id, token_name, model, created_at DESC)", "logs"},
+		}
+	} else if common.UsingMySQL {
+		// MySQL: not support INCLUDE
+		indexes = []struct {
+			name  string
+			sql   string
+			table string
+		}{
+			{"idx_model_creat", "CREATE INDEX idx_model_creat ON logs (model, created_at DESC)", "logs"},
+			{"idx_channel_creat", "CREATE INDEX idx_channel_creat ON logs (channel_id, created_at DESC)", "logs"},
+			{"idx_channel_model_creat", "CREATE INDEX idx_channel_model_creat ON logs (channel_id, model, created_at DESC)", "logs"},
+			{"idx_group_creat", "CREATE INDEX idx_group_creat ON logs (group_id, created_at DESC)", "logs"},
+			{"idx_group_token_creat", "CREATE INDEX idx_group_token_creat ON logs (group_id, token_name, created_at DESC)", "logs"},
+			{"idx_group_model_creat", "CREATE INDEX idx_group_model_creat ON logs (group_id, model, created_at DESC)", "logs"},
+			{"idx_group_token_model_creat", "CREATE INDEX idx_group_token_model_creat ON logs (group_id, token_name, model, created_at DESC)", "logs"},
 		}
 	} else {
-		indexes = []string{
-			// used by global search logs
-			"CREATE INDEX IF NOT EXISTS idx_model_creat ON logs (model, created_at DESC) INCLUDE (code)",
-			// used by global search logs
-			"CREATE INDEX IF NOT EXISTS idx_channel_creat ON logs (channel_id, created_at DESC) INCLUDE (code)",
-			// used by global search logs
-			"CREATE INDEX IF NOT EXISTS idx_channel_model_creat ON logs (channel_id, model, created_at DESC) INCLUDE (code)",
-
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_creat ON logs (group_id, created_at DESC) INCLUDE (code)",
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_token_creat ON logs (group_id, token_name, created_at DESC) INCLUDE (code)",
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_model_creat ON logs (group_id, model, created_at DESC) INCLUDE (code)",
-			// used by search group logs
-			"CREATE INDEX IF NOT EXISTS idx_group_token_model_creat ON logs (group_id, token_name, model, created_at DESC) INCLUDE (code)",
+		// PostgreSQL: support INCLUDE
+		indexes = []struct {
+			name  string
+			sql   string
+			table string
+		}{
+			{"idx_model_creat", "CREATE INDEX idx_model_creat ON logs (model, created_at DESC) INCLUDE (code)", "logs"},
+			{"idx_channel_creat", "CREATE INDEX idx_channel_creat ON logs (channel_id, created_at DESC) INCLUDE (code)", "logs"},
+			{"idx_channel_model_creat", "CREATE INDEX idx_channel_model_creat ON logs (channel_id, model, created_at DESC) INCLUDE (code)", "logs"},
+			{"idx_group_creat", "CREATE INDEX idx_group_creat ON logs (group_id, created_at DESC) INCLUDE (code)", "logs"},
+			{"idx_group_token_creat", "CREATE INDEX idx_group_token_creat ON logs (group_id, token_name, created_at DESC) INCLUDE (code)", "logs"},
+			{"idx_group_model_creat", "CREATE INDEX idx_group_model_creat ON logs (group_id, model, created_at DESC) INCLUDE (code)", "logs"},
+			{"idx_group_token_model_creat", "CREATE INDEX idx_group_token_model_creat ON logs (group_id, token_name, model, created_at DESC) INCLUDE (code)", "logs"},
 		}
 	}
 
 	for _, index := range indexes {
-		if err := db.Exec(index).Error; err != nil {
+		if err := CreateIndexIfNotExists(db, index.name, index.table, index.sql); err != nil {
 			return err
 		}
 	}
@@ -223,21 +236,27 @@ func cleanLog(batchSize int) error {
 
 	logStorageHours := config.GetLogStorageHours()
 	if logStorageHours != 0 {
-		subQuery := LogDB.
-			Model(&Log{}).
-			Where(
-				"created_at < ?",
-				time.Now().Add(-time.Duration(logStorageHours)*time.Hour),
-			).
-			Limit(batchSize).
-			Select("id")
+		var ids []int
+		cutoffTime := time.Now().Add(-time.Duration(logStorageHours) * time.Hour)
 
 		err := LogDB.
-			Session(&gorm.Session{SkipDefaultTransaction: true}).
-			Where("id IN (?)", subQuery).
-			Delete(&Log{}).Error
+			Model(&Log{}).
+			Where("created_at < ?", cutoffTime).
+			Limit(batchSize).
+			Select("id").
+			Find(&ids).Error
 		if err != nil {
 			return err
+		}
+
+		if len(ids) > 0 {
+			err = LogDB.
+				Session(&gorm.Session{SkipDefaultTransaction: true}).
+				Where("id IN (?)", ids).
+				Delete(&Log{}).Error
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -247,21 +266,27 @@ func cleanLog(batchSize int) error {
 	}
 
 	if retryLogStorageHours != 0 {
-		subQuery := LogDB.
-			Model(&RetryLog{}).
-			Where(
-				"created_at < ?",
-				time.Now().Add(-time.Duration(retryLogStorageHours)*time.Hour),
-			).
-			Limit(batchSize).
-			Select("id")
+		var ids []int
+		cutoffTime := time.Now().Add(-time.Duration(retryLogStorageHours) * time.Hour)
 
 		err := LogDB.
-			Session(&gorm.Session{SkipDefaultTransaction: true}).
-			Where("id IN (?)", subQuery).
-			Delete(&RetryLog{}).Error
+			Model(&RetryLog{}).
+			Where("created_at < ?", cutoffTime).
+			Limit(batchSize).
+			Select("id").
+			Find(&ids).Error
 		if err != nil {
 			return err
+		}
+
+		if len(ids) > 0 {
+			err = LogDB.
+				Session(&gorm.Session{SkipDefaultTransaction: true}).
+				Where("id IN (?)", ids).
+				Delete(&RetryLog{}).Error
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -295,21 +320,27 @@ func cleanLogDetail(batchSize int) error {
 		batchSize = defaultCleanLogBatchSize
 	}
 
-	subQuery := LogDB.
-		Model(&RequestDetail{}).
-		Where(
-			"created_at < ?",
-			time.Now().Add(-time.Duration(detailStorageHours)*time.Hour),
-		).
-		Limit(batchSize).
-		Select("id")
+	var ids []int
+	cutoffTime := time.Now().Add(-time.Duration(detailStorageHours) * time.Hour)
 
 	err := LogDB.
-		Session(&gorm.Session{SkipDefaultTransaction: true}).
-		Where("id IN (?)", subQuery).
-		Delete(&RequestDetail{}).Error
+		Model(&RequestDetail{}).
+		Where("created_at < ?", cutoffTime).
+		Limit(batchSize).
+		Select("id").
+		Find(&ids).Error
 	if err != nil {
 		return err
+	}
+
+	if len(ids) > 0 {
+		err = LogDB.
+			Session(&gorm.Session{SkipDefaultTransaction: true}).
+			Where("id IN (?)", ids).
+			Delete(&RequestDetail{}).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

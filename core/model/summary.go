@@ -268,13 +268,17 @@ func validateHourTimestamp(hourTimestamp int64) error {
 }
 
 func CreateSummaryIndexs(db *gorm.DB) error {
-	indexes := []string{
-		"CREATE INDEX IF NOT EXISTS idx_summary_channel_hour ON summaries (channel_id, hour_timestamp DESC)",
-		"CREATE INDEX IF NOT EXISTS idx_summary_model_hour ON summaries (model, hour_timestamp DESC)",
+	indexes := []struct {
+		name  string
+		sql   string
+		table string
+	}{
+		{"idx_summary_channel_hour", "CREATE INDEX idx_summary_channel_hour ON summaries (channel_id, hour_timestamp DESC)", "summaries"},
+		{"idx_summary_model_hour", "CREATE INDEX idx_summary_model_hour ON summaries (model, hour_timestamp DESC)", "summaries"},
 	}
 
 	for _, index := range indexes {
-		if err := db.Exec(index).Error; err != nil {
+		if err := CreateIndexIfNotExists(db, index.name, index.table, index.sql); err != nil {
 			return err
 		}
 	}

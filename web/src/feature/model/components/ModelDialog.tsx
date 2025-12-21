@@ -49,7 +49,8 @@ export function ModelDialog({
             timeout: model.timeout,
             max_error_rate: model.max_error_rate,
             force_save_detail: model.force_save_detail,
-            plugin: model.plugin
+            plugin: model.plugin,
+            price: model.price
         }
         : {
             model: '',

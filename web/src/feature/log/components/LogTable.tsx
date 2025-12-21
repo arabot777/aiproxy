@@ -129,6 +129,18 @@ export function LogTable({
                 },
                 size: 80,
             }),
+            columnHelper.accessor('used_amount', {
+                header: t('log.amount'),
+                cell: (info) => {
+                    const amount = info.getValue()
+                    return (
+                        <div className="text-right font-mono">
+                            {amount ? `¥${amount.toFixed(4)}` : '¥0.0000'}
+                        </div>
+                    )
+                },
+                size: 100,
+            }),
             columnHelper.accessor('code', {
                 header: t('log.state'),
                 cell: (info) => {

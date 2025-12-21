@@ -268,7 +268,7 @@ func SearchTokens(
 	}
 
 	if key != "" {
-		tx = tx.Where("key = ?", key)
+		tx = tx.Where("`key` = ?", key)
 	}
 
 	if keyword != "" {
@@ -353,7 +353,7 @@ func SearchGroupTokens(
 	}
 
 	if key != "" {
-		tx = tx.Where("key = ?", key)
+		tx = tx.Where("`key` = ?", key)
 	}
 
 	if status != 0 {
@@ -421,7 +421,7 @@ func GetTokenByKey(key string) (*Token, error) {
 
 	var token Token
 
-	err := DB.Where("key = ?", key).First(&token).Error
+	err := DB.Where("`key` = ?", key).First(&token).Error
 
 	return &token, HandleNotFound(err, ErrTokenNotFound)
 }
