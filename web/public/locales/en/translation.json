@@ -2,6 +2,7 @@
   "sidebar": {
     "monitor": "Dashboard",
     "key": "API Keys",
+    "group": "User Groups",
     "channel": "Channel",
     "model": "Model",
     "mcp": "MCP",
@@ -26,7 +27,8 @@
     "optional": "(Optional)",
     "cancel": "Cancel",
     "save": "Save",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "deleting": "Deleting..."
   },
   "error": {
     "loading": "Failed to load data",
@@ -157,6 +159,51 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "deleting": "Deleting..."
+    }
+  },
+  "group": {
+    "management": "User Group Management",
+    "id": "User Group ID",
+    "name": "User Group Name",
+    "status": "Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "internal": "Internal",
+    "usedAmount": "Used",
+    "requestCount": "Request Count",
+    "availableSets": "Available Sets",
+    "rpmRatio": "RPM Ratio",
+    "tpmRatio": "TPM Ratio",
+    "lastUsed": "Last Used",
+    "balanceAlert": "Balance Alert",
+    "balanceThreshold": "Alert Threshold",
+    "add": "Add User Group",
+    "edit": "Edit",
+    "delete": "Delete",
+    "batchDelete": "Batch Delete",
+    "enable": "Enable",
+    "disable": "Disable",
+    "refresh": "Refresh",
+    "search": "Search User Groups",
+    "never": "Never used",
+    "noResults": "No user groups found",
+    "dialog": {
+      "createTitle": "Create User Group",
+      "editTitle": "Edit User Group",
+      "idPlaceholder": "Enter user group ID",
+      "idDescription": "User group ID cannot be changed after creation, max 64 characters",
+      "setsPlaceholder": "Type set name and press Enter to add",
+      "setsDescription": "Channel sets accessible by this user group, defaults to [\"default\"] if empty",
+      "rpmRatioDescription": "Ratio relative to channel RPM, e.g. 0.5 means 50% limit",
+      "tpmRatioDescription": "Ratio relative to channel TPM, e.g. 0.5 means 50% limit",
+      "balanceAlertDescription": "Send alert when balance falls below threshold",
+      "thresholdPlaceholder": "0.00"
+    },
+    "deleteDialog": {
+      "title": "Delete User Group",
+      "description": "Are you sure you want to delete user group \"{name}\"?",
+      "warning": "Deleting a user group will also delete all API Keys under this group!",
+      "confirm": "Confirm Delete"
     }
   },
   "model": {
@@ -469,6 +516,8 @@
     "retry": "Retry",
     "retryTimes": "Retry Times",
     "ttfb": "TTFB",
+    "internalProcessTime": "Internal Processing",
+    "upstreamResponseTime": "Upstream API Response",
     "filters": {
       "keyPlaceholder": "Enter key name to filter",
       "modelPlaceholder": "Enter model name to filter",

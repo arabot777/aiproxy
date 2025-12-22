@@ -307,10 +307,14 @@ func recordResult(
 	var detail *model.RequestDetail
 
 	firstByteAt := result.Detail.FirstByteAt
+	upstreamRequestAt := result.Detail.UpstreamRequestAt
+	upstreamResponseAt := result.Detail.UpstreamResponseAt
 	if config.GetSaveAllLogDetail() || meta.ModelConfig.ForceSaveDetail || code != http.StatusOK {
 		detail = &model.RequestDetail{
-			RequestBody:  result.Detail.RequestBody,
-			ResponseBody: result.Detail.ResponseBody,
+			RequestBody:        result.Detail.RequestBody,
+			ResponseBody:       result.Detail.ResponseBody,
+			UpstreamRequestAt:  upstreamRequestAt,
+			UpstreamResponseAt: upstreamResponseAt,
 		}
 	}
 
@@ -330,6 +334,8 @@ func recordResult(
 		gbc.Consumer,
 		code,
 		firstByteAt,
+		upstreamRequestAt,
+		upstreamResponseAt,
 		meta,
 		result.Usage,
 		price,

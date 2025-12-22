@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
 import { Separator } from '@/components/ui/separator'
 import { JsonViewer } from './JsonViewer'
+import { TimingBreakdown } from './TimingBreakdown'
 import { useLogDetail } from '@/feature/log/hooks'
 import type { LogRecord, LogRequestDetail } from '@/types/log'
 
@@ -81,13 +82,19 @@ export const ExpandedLogContent = ({ log }: { log: LogRecord }) => {
                 {/* 时间信息 */}
                 <div className="space-y-2">
                     <h4 className="font-semibold text-sm">{t('log.timeInfo')}</h4>
-                    <div className="space-y-1 text-sm">
+                    <div className="space-y-2 text-sm">
                         <div><span className="font-medium">{t('log.created')}:</span> {log.created_at ? format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss') : '-'}</div>
                         <div><span className="font-medium">{t('log.request')}:</span> {log.request_at ? format(new Date(log.request_at), 'yyyy-MM-dd HH:mm:ss') : '-'}</div>
                         <div><span className="font-medium">{t('log.duration')}:</span> {calculateDuration()}</div>
                         {log.retry_at && <div><span className="font-medium">{t('log.retry')}:</span> {format(new Date(log.retry_at), 'yyyy-MM-dd HH:mm:ss')}</div>}
                         <div><span className="font-medium">{t('log.retryTimes')}:</span> {log.retry_times || 0}</div>
-                        <div><span className="font-medium">{t('log.ttfb')}:</span> {log.ttfb_milliseconds || 0}ms</div>
+                        <div className="pt-2 border-t">
+                            <TimingBreakdown
+                                ttfb={log.ttfb_milliseconds || 0}
+                                internalProcessTime={log.internal_process_time_ms}
+                                upstreamResponseTime={log.upstream_response_time_ms}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

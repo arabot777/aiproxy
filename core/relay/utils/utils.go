@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -202,6 +203,11 @@ func loadHTTPClient(timeout time.Duration) *http.Client {
 }
 
 func DoRequest(req *http.Request, timeout time.Duration) (*http.Response, error) {
+	// Record upstream request time and attach to context
+	upstreamRequestAt := time.Now()
+	ctx := context.WithValue(req.Context(), "upstreamRequestAt", upstreamRequestAt)
+	req = req.WithContext(ctx)
+
 	resp, err := loadHTTPClient(timeout).Do(req)
 	if err != nil {
 		return nil, err

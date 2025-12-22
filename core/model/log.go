@@ -19,6 +19,8 @@ type RequestDetail struct {
 	ResponseBody          string    `gorm:"type:text"            json:"response_body,omitempty"`
 	RequestBodyTruncated  bool      `                            json:"request_body_truncated,omitempty"`
 	ResponseBodyTruncated bool      `                            json:"response_body_truncated,omitempty"`
+	UpstreamRequestAt     time.Time `                            json:"upstream_request_at,omitempty"`
+	UpstreamResponseAt    time.Time `                            json:"upstream_response_at,omitempty"`
 	ID                    int       `gorm:"primaryKey"           json:"id"`
 	LogID                 int       `gorm:"index"                json:"log_id"`
 }
@@ -70,6 +72,11 @@ type Log struct {
 	// https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids
 	User     EmptyNullString   `gorm:"type:text"                                                      json:"user,omitempty"`
 	Metadata map[string]string `gorm:"serializer:fastjson;type:text"                                  json:"metadata,omitempty"`
+	// Upstream timing fields for tracking third-party API latency
+	UpstreamRequestAt        time.Time     `                                                                      json:"upstream_request_at,omitempty"`
+	UpstreamResponseAt       time.Time     `                                                                      json:"upstream_response_at,omitempty"`
+	InternalProcessTime      ZeroNullInt64 `                                                                      json:"internal_process_time_ms,omitempty"`
+	UpstreamResponseTime     ZeroNullInt64 `                                                                      json:"upstream_response_time_ms,omitempty"`
 }
 
 func CreateLogIndexes(db *gorm.DB) error {
@@ -352,6 +359,8 @@ func RecordConsumeLog(
 	requestAt time.Time,
 	retryAt time.Time,
 	firstByteAt time.Time,
+	upstreamRequestAt time.Time,
+	upstreamResponseAt time.Time,
 	group string,
 	code int,
 	channelID int,
@@ -382,29 +391,44 @@ func RecordConsumeLog(
 		firstByteAt = requestAt
 	}
 
+	// Calculate timing metrics
+	var internalProcessTime, upstreamResponseTime ZeroNullInt64
+	if !upstreamRequestAt.IsZero() && !upstreamRequestAt.Before(requestAt) {
+		// Internal processing time: requestAt -> upstreamRequestAt
+		internalProcessTime = ZeroNullInt64(upstreamRequestAt.Sub(requestAt).Milliseconds())
+	}
+	if !upstreamResponseAt.IsZero() && !upstreamRequestAt.IsZero() && !upstreamResponseAt.Before(upstreamRequestAt) {
+		// Upstream response time: upstreamRequestAt -> upstreamResponseAt
+		upstreamResponseTime = ZeroNullInt64(upstreamResponseAt.Sub(upstreamRequestAt).Milliseconds())
+	}
+
 	log := &Log{
-		RequestID:        EmptyNullString(requestID),
-		RequestAt:        requestAt,
-		CreatedAt:        createAt,
-		RetryAt:          retryAt,
-		TTFBMilliseconds: ZeroNullInt64(firstByteAt.Sub(requestAt).Milliseconds()),
-		GroupID:          group,
-		Code:             code,
-		TokenID:          tokenID,
-		TokenName:        tokenName,
-		Model:            modelName,
-		Mode:             mode,
-		IP:               EmptyNullString(ip),
-		ChannelID:        channelID,
-		Endpoint:         EmptyNullString(endpoint),
-		Content:          EmptyNullString(content),
-		RetryTimes:       ZeroNullInt64(retryTimes),
-		RequestDetail:    requestDetail,
-		Price:            modelPrice,
-		Usage:            usage,
-		UsedAmount:       amount,
-		User:             EmptyNullString(user),
-		Metadata:         metadata,
+		RequestID:            EmptyNullString(requestID),
+		RequestAt:            requestAt,
+		CreatedAt:            createAt,
+		RetryAt:              retryAt,
+		TTFBMilliseconds:     ZeroNullInt64(firstByteAt.Sub(requestAt).Milliseconds()),
+		UpstreamRequestAt:    upstreamRequestAt,
+		UpstreamResponseAt:   upstreamResponseAt,
+		InternalProcessTime:  internalProcessTime,
+		UpstreamResponseTime: upstreamResponseTime,
+		GroupID:              group,
+		Code:                 code,
+		TokenID:              tokenID,
+		TokenName:            tokenName,
+		Model:                modelName,
+		Mode:                 mode,
+		IP:                   EmptyNullString(ip),
+		ChannelID:            channelID,
+		Endpoint:             EmptyNullString(endpoint),
+		Content:              EmptyNullString(content),
+		RetryTimes:           ZeroNullInt64(retryTimes),
+		RequestDetail:        requestDetail,
+		Price:                modelPrice,
+		Usage:                usage,
+		UsedAmount:           amount,
+		User:                 EmptyNullString(user),
+		Metadata:             metadata,
 	}
 
 	return LogDB.Create(log).Error

@@ -2,6 +2,7 @@
   "sidebar": {
     "monitor": "仪表盘",
     "key": "API Keys",
+    "group": "用户组",
     "channel": "渠道",
     "model": "模型",
     "mcp": "消息控制协议",
@@ -26,7 +27,8 @@
     "optional": "(可选)",
     "cancel": "取消",
     "save": "保存",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "deleting": "删除中..."
   },
   "error": {
     "loading": "数据加载失败",
@@ -157,6 +159,51 @@
       "cancel": "取消",
       "delete": "删除",
       "deleting": "删除中..."
+    }
+  },
+  "group": {
+    "management": "用户组管理",
+    "id": "用户组ID",
+    "name": "用户组名称",
+    "status": "状态",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "internal": "内部",
+    "usedAmount": "已使用",
+    "requestCount": "请求次数",
+    "availableSets": "可访问分组",
+    "rpmRatio": "RPM比率",
+    "tpmRatio": "TPM比率",
+    "lastUsed": "最后使用",
+    "balanceAlert": "余额警报",
+    "balanceThreshold": "警报阈值",
+    "add": "添加用户组",
+    "edit": "编辑",
+    "delete": "删除",
+    "batchDelete": "批量删除",
+    "enable": "启用",
+    "disable": "禁用",
+    "refresh": "刷新",
+    "search": "搜索用户组",
+    "never": "从未使用",
+    "noResults": "未找到用户组",
+    "dialog": {
+      "createTitle": "创建用户组",
+      "editTitle": "编辑用户组",
+      "idPlaceholder": "输入用户组ID",
+      "idDescription": "用户组ID创建后不可修改，最多64个字符",
+      "setsPlaceholder": "输入分组名称并按Enter添加",
+      "setsDescription": "用户组可访问的渠道分组，为空时默认为 [\"default\"]",
+      "rpmRatioDescription": "相对于渠道RPM的比率，例如0.5表示50%限制",
+      "tpmRatioDescription": "相对于渠道TPM的比率，例如0.5表示50%限制",
+      "balanceAlertDescription": "当余额低于阈值时发送警报",
+      "thresholdPlaceholder": "0.00"
+    },
+    "deleteDialog": {
+      "title": "删除用户组",
+      "description": "确定要删除用户组 \"{name}\" 吗？",
+      "warning": "删除用户组会同时删除该用户组下的所有 API Keys！",
+      "confirm": "确认删除"
     }
   },
   "model": {
@@ -468,6 +515,8 @@
     "retry": "重试",
     "retryTimes": "重试次数",
     "ttfb": "首字节时间",
+    "internalProcessTime": "系统内部处理",
+    "upstreamResponseTime": "第三方API响应",
     "filters": {
       "keyPlaceholder": "输入 Key 名称进行筛选",
       "modelPlaceholder": "输入模型名称进行筛选",

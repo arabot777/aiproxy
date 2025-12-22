@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/feature/auth/components/ProtectedRoute"
 import ModelPage from "@/pages/model/page"
 import ChannelPage from "@/pages/channel/page"
 import TokenPage from "@/pages/token/page"
+import GroupPage from "@/pages/group/page"
 import MonitorPage from "@/pages/monitor/page"
 import LogPage from "@/pages/log/page"
 import MCPPage from "@/pages/mcp/page"
@@ -53,6 +54,10 @@ export function useRoutes(): RouteObject[] {
                 {
                     path: ROUTES.KEY,
                     element: <TokenPage />,
+                },
+                {
+                    path: ROUTES.GROUP,
+                    element: <GroupPage />,
                 },
                 {
                     path: ROUTES.CHANNEL,

@@ -30,13 +30,19 @@ const (
 
 type responseWriter struct {
 	gin.ResponseWriter
-	body        *bytes.Buffer
-	firstByteAt time.Time
+	body               *bytes.Buffer
+	firstByteAt        time.Time
+	upstreamRequestAt  time.Time
+	upstreamResponseAt time.Time
 }
 
 func (rw *responseWriter) Write(b []byte) (int, error) {
 	if rw.firstByteAt.IsZero() {
 		rw.firstByteAt = time.Now()
+		// Record upstream response time (when first byte received from upstream)
+		if !rw.upstreamRequestAt.IsZero() {
+			rw.upstreamResponseAt = time.Now()
+		}
 	}
 
 	if rw.body.Len()+len(b) <= maxBufferSize {
@@ -78,9 +84,11 @@ func putBuffer(buf *bytes.Buffer) {
 }
 
 type RequestDetail struct {
-	RequestBody  string
-	ResponseBody string
-	FirstByteAt  time.Time
+	RequestBody        string
+	ResponseBody       string
+	FirstByteAt        time.Time
+	UpstreamRequestAt  time.Time
+	UpstreamResponseAt time.Time
 }
 
 func DoHelper(
@@ -249,6 +257,10 @@ func doRequest(
 	store adaptor.Store,
 	req *http.Request,
 ) (*http.Response, adaptor.Error) {
+	// Record upstream request time before making the request
+	upstreamRequestAt := time.Now()
+	c.Set("upstreamRequestAt", upstreamRequestAt)
+
 	resp, err := a.DoRequest(meta, store, c, req)
 	if err != nil {
 		var adaptorErr adaptor.Error
@@ -319,15 +331,26 @@ func handleResponse(
 	buf := getBuffer()
 	defer putBuffer(buf)
 
+	// Get upstream request time from gin context
+	var upstreamRequestAt time.Time
+	if t, exists := c.Get("upstreamRequestAt"); exists {
+		if timeVal, ok := t.(time.Time); ok {
+			upstreamRequestAt = timeVal
+		}
+	}
+
 	rw := &responseWriter{
-		ResponseWriter: c.Writer,
-		body:           buf,
+		ResponseWriter:    c.Writer,
+		body:              buf,
+		upstreamRequestAt: upstreamRequestAt,
 	}
 
 	rawWriter := c.Writer
 	defer func() {
 		c.Writer = rawWriter
 		detail.FirstByteAt = rw.firstByteAt
+		detail.UpstreamRequestAt = rw.upstreamRequestAt
+		detail.UpstreamResponseAt = rw.upstreamResponseAt
 	}()
 
 	c.Writer = rw

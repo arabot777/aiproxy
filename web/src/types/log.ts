@@ -39,6 +39,8 @@ export interface LogRequestDetail {
   request_body_truncated: boolean
   response_body: string
   response_body_truncated: boolean
+  upstream_request_at?: string
+  upstream_response_at?: string
 }
 
 // 日志记录
@@ -63,6 +65,10 @@ export interface LogRecord {
   token_id: number
   token_name: string
   ttfb_milliseconds: number
+  upstream_request_at?: string
+  upstream_response_at?: string
+  internal_process_time_ms?: number
+  upstream_response_time_ms?: number
   usage: LogUsage
   used_amount: number
   user: string

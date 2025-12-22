@@ -15,6 +15,7 @@ import {
 import { channelCreateSchema } from '@/validation/channel'
 import { useChannelTypeMetas, useCreateChannel, useUpdateChannel } from '../hooks'
 import { useModels } from '@/feature/model/hooks'
+import { useAvailableSets } from '@/hooks/useAvailableSets'
 import { useTranslation } from 'react-i18next'
 import { ChannelCreateForm } from '@/validation/channel'
 import { ModelDialog } from '@/feature/model/components/ModelDialog'
@@ -71,6 +72,9 @@ export function ChannelForm({
 
     // 获取所有模型
     const { data: models, isLoading: isModelsLoading } = useModels()
+
+    // 获取所有可用的 sets
+    const { availableSets } = useAvailableSets()
 
     // API hooks
     const {
@@ -438,17 +442,32 @@ export function ChannelForm({
                                         <FormItem>
                                             <FormControl>
                                                 <MultiSelectCombobox<string>
-                                                    dropdownItems={[]}
+                                                    dropdownItems={availableSets}
                                                     selectedItems={field.value || []}
                                                     setSelectedItems={(sets) => {
                                                         field.onChange(sets)
                                                     }}
                                                     handleFilteredDropdownItems={(dropdownItems, selectedItems, inputValue) => {
-                                                        // 允许用户创建新的分组
-                                                        if (inputValue && !selectedItems.includes(inputValue) && !dropdownItems.includes(inputValue)) {
-                                                            return [inputValue, ...dropdownItems]
+                                                        // Filter out already selected items
+                                                        const filtered = dropdownItems.filter(
+                                                            item => !selectedItems.includes(item)
+                                                        )
+
+                                                        // Allow user to create new sets
+                                                        if (inputValue &&
+                                                            !selectedItems.includes(inputValue) &&
+                                                            !dropdownItems.includes(inputValue)) {
+                                                            return [inputValue, ...filtered]
                                                         }
-                                                        return dropdownItems
+
+                                                        // Filter by input value
+                                                        if (inputValue) {
+                                                            return filtered.filter(item =>
+                                                                item.toLowerCase().includes(inputValue.toLowerCase())
+                                                            )
+                                                        }
+
+                                                        return filtered
                                                     }}
                                                     handleDropdownItemDisplay={(item) => item}
                                                     handleSelectedItemDisplay={(item) => item}
