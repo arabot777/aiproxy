@@ -308,7 +308,10 @@ func optimizeLog() error {
 	switch {
 	case common.UsingSQLite:
 		return LogDB.Exec("VACUUM").Error
+	case common.UsingMySQL:
+		return LogDB.Exec("OPTIMIZE TABLE logs").Error
 	default:
+		// PostgreSQL
 		return LogDB.Exec("VACUUM ANALYZE logs").Error
 	}
 }

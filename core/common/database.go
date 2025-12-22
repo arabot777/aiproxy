@@ -6,6 +6,7 @@ import (
 
 var UsingSQLite = false
 var UsingMySQL = false
+var UsingPostgreSQL = false
 
 var (
 	SQLitePath        = env.String("SQLITE_PATH", "aiproxy.db")

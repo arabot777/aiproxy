@@ -297,7 +297,7 @@ func SearchChannels(
 		}
 
 		if name == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "name ILIKE ?")
 			} else {
 				conditions = append(conditions, "name LIKE ?")
@@ -307,7 +307,7 @@ func SearchChannels(
 		}
 
 		if key == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "key ILIKE ?")
 			} else {
 				conditions = append(conditions, "key LIKE ?")
@@ -317,7 +317,7 @@ func SearchChannels(
 		}
 
 		if baseURL == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "base_url ILIKE ?")
 			} else {
 				conditions = append(conditions, "base_url LIKE ?")
@@ -326,7 +326,7 @@ func SearchChannels(
 			values = append(values, "%"+keyword+"%")
 		}
 
-		if !common.UsingSQLite {
+		if common.UsingPostgreSQL {
 			conditions = append(conditions, "models ILIKE ?")
 		} else {
 			conditions = append(conditions, "models LIKE ?")
@@ -334,7 +334,7 @@ func SearchChannels(
 
 		values = append(values, "%"+keyword+"%")
 
-		if !common.UsingSQLite {
+		if common.UsingPostgreSQL {
 			conditions = append(conditions, "sets ILIKE ?")
 		} else {
 			conditions = append(conditions, "sets LIKE ?")

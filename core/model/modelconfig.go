@@ -247,7 +247,7 @@ func SearchModelConfigs(
 		)
 
 		if model == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "model ILIKE ?")
 			} else {
 				conditions = append(conditions, "model LIKE ?")
@@ -257,7 +257,7 @@ func SearchModelConfigs(
 		}
 
 		if owner != "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "owner ILIKE ?")
 			} else {
 				conditions = append(conditions, "owner LIKE ?")

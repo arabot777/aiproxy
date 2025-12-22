@@ -278,7 +278,7 @@ func SearchTokens(
 		)
 
 		if group == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "group_id ILIKE ?")
 			} else {
 				conditions = append(conditions, "group_id LIKE ?")
@@ -288,7 +288,7 @@ func SearchTokens(
 		}
 
 		if name == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "name ILIKE ?")
 			} else {
 				conditions = append(conditions, "name LIKE ?")
@@ -298,7 +298,7 @@ func SearchTokens(
 		}
 
 		if key == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "key ILIKE ?")
 			} else {
 				conditions = append(conditions, "key LIKE ?")
@@ -307,7 +307,7 @@ func SearchTokens(
 			values = append(values, "%"+keyword+"%")
 		}
 
-		if !common.UsingSQLite {
+		if common.UsingPostgreSQL {
 			conditions = append(conditions, "models ILIKE ?")
 		} else {
 			conditions = append(conditions, "models LIKE ?")
@@ -367,7 +367,7 @@ func SearchGroupTokens(
 		)
 
 		if name == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "name ILIKE ?")
 			} else {
 				conditions = append(conditions, "name LIKE ?")
@@ -377,7 +377,7 @@ func SearchGroupTokens(
 		}
 
 		if key == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "key ILIKE ?")
 			} else {
 				conditions = append(conditions, "key LIKE ?")
@@ -386,7 +386,7 @@ func SearchGroupTokens(
 			values = append(values, "%"+keyword+"%")
 		}
 
-		if !common.UsingSQLite {
+		if common.UsingPostgreSQL {
 			conditions = append(conditions, "models ILIKE ?")
 		} else {
 			conditions = append(conditions, "models LIKE ?")

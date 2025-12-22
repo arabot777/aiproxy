@@ -91,7 +91,7 @@ func SearchConsumeError(
 		)
 
 		if requestID == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "request_id ILIKE ?")
 			} else {
 				conditions = append(conditions, "request_id LIKE ?")
@@ -101,7 +101,7 @@ func SearchConsumeError(
 		}
 
 		if group == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "group_id ILIKE ?")
 			} else {
 				conditions = append(conditions, "group_id LIKE ?")
@@ -111,7 +111,7 @@ func SearchConsumeError(
 		}
 
 		if tokenName == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "token_name ILIKE ?")
 			} else {
 				conditions = append(conditions, "token_name LIKE ?")
@@ -121,7 +121,7 @@ func SearchConsumeError(
 		}
 
 		if model == "" {
-			if !common.UsingSQLite {
+			if common.UsingPostgreSQL {
 				conditions = append(conditions, "model ILIKE ?")
 			} else {
 				conditions = append(conditions, "model LIKE ?")

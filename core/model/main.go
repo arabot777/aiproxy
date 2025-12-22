@@ -35,6 +35,8 @@ func chooseDB(envName string) (*gorm.DB, error) {
 		// Use PostgreSQL
 		log.Info("using PostgreSQL as database")
 
+		common.UsingPostgreSQL = true
+
 		return OpenPostgreSQL(dsn)
 	case strings.HasPrefix(dsn, "mysql://"):
 		// Use MySQL

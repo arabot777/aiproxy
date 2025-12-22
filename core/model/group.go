@@ -355,7 +355,7 @@ func SearchGroup(
 		tx = tx.Where("status = ?", status)
 	}
 
-	if !common.UsingSQLite {
+	if common.UsingPostgreSQL {
 		tx = tx.Where("id ILIKE ? OR available_sets ILIKE ?", "%"+keyword+"%", "%"+keyword+"%")
 	} else {
 		tx = tx.Where("id LIKE ? OR available_sets LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
