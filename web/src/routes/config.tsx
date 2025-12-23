@@ -12,6 +12,7 @@ import GroupPage from "@/pages/group/page"
 import MonitorPage from "@/pages/monitor/page"
 import LogPage from "@/pages/log/page"
 import MCPPage from "@/pages/mcp/page"
+import PlaygroundPage from "@/pages/playground/page"
 
 // import layout component directly
 import { RootLayout } from "@/components/layout/RootLayOut"
@@ -74,6 +75,10 @@ export function useRoutes(): RouteObject[] {
                 {
                     path: ROUTES.MCP,
                     element: <MCPPage />,
+                },
+                {
+                    path: ROUTES.PLAYGROUND,
+                    element: <PlaygroundPage />,
                 }
             ]
         }]

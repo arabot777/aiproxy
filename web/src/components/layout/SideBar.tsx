@@ -14,6 +14,7 @@ import {
     LogOut,
     MessageCircle,
     Users,
+    Sparkles,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import type { TFunction } from "i18next"
@@ -33,6 +34,12 @@ interface SidebarItem {
 
 function createSidebarConfig(t: TFunction): SidebarItem[] {
     return [
+        {
+            title: t("sidebar.playground"),
+            icon: Sparkles,
+            href: ROUTES.PLAYGROUND,
+            display: true,
+        },
         {
             title: t("sidebar.monitor"),
             icon: BarChart2,
@@ -99,6 +106,7 @@ interface SidebarDisplayConfig {
     channel?: boolean
     model?: boolean
     mcp?: boolean
+    playground?: boolean
     log?: boolean
     doc?: boolean
     github?: boolean
@@ -126,6 +134,7 @@ export function Sidebar({ displayConfig = {}, collapsed = false, onToggle }: Sid
         if (item.href === ROUTES.CHANNEL) configKey = "channel"
         if (item.href === ROUTES.MODEL) configKey = "model"
         if (item.href === ROUTES.MCP) configKey = "mcp"
+        if (item.href === ROUTES.PLAYGROUND) configKey = "playground"
         if (item.href === ROUTES.LOG) configKey = "log"
         if (item.href === "https://sealos.run/docs/guides/ai-proxy") configKey = "doc"
         if (item.href === "https://github.com/labring/aiproxy") configKey = "github"

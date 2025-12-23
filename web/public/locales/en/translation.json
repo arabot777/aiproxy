@@ -6,6 +6,7 @@
     "channel": "Channel",
     "model": "Model",
     "mcp": "MCP",
+    "playground": "Playground",
     "log": "Logs",
     "doc": "Document",
     "github": "GitHub",
@@ -600,5 +601,27 @@
     "10": "Rerank",
     "11": "PDF Parsing",
     "13": "Video Generation"
+  },
+  "playground": {
+    "title": "LLM Playground",
+    "modelConfiguration": "Model Configuration",
+    "model": "Model",
+    "selectModel": "Select model",
+    "responseFormat": "Response Format",
+    "systemPrompt": "System Prompt",
+    "systemPromptPlaceholder": "Enter system prompt...",
+    "enableThinking": "Enable Thinking",
+    "maxTokens": "max_tokens",
+    "temperature": "temperature",
+    "topP": "top_p",
+    "topK": "top_k",
+    "presencePenalty": "presence_penalty",
+    "frequencyPenalty": "frequency_penalty",
+    "repetitionPenalty": "repetition_penalty",
+    "clearHistory": "Clear History",
+    "tryModel": "Kick the tires, see how {{model}} performs on Novita AI",
+    "startConversation": "Start a conversation",
+    "startConversationDesc": "Type a message below to begin",
+    "inputPlaceholder": "Say something..."
   }
 }

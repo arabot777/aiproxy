@@ -8,6 +8,7 @@ export const ROUTES = {
     MODEL: "/model",
     LOG: "/log",
     MCP: "/mcp",
+    PLAYGROUND: "/playground",
 } as const
 
 export type RouteKey = keyof typeof ROUTES

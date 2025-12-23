@@ -6,6 +6,7 @@
     "channel": "渠道",
     "model": "模型",
     "mcp": "消息控制协议",
+    "playground": "Playground",
     "log": "日志",
     "doc": "文档",
     "github": "GitHub",
@@ -599,5 +600,27 @@
     "10": "重排序",
     "11": "PDF解析",
     "13": "视频生成"
+  },
+  "playground": {
+    "title": "LLM 测试平台",
+    "modelConfiguration": "模型配置",
+    "model": "模型",
+    "selectModel": "选择模型",
+    "responseFormat": "响应格式",
+    "systemPrompt": "系统提示词",
+    "systemPromptPlaceholder": "输入系统提示词...",
+    "enableThinking": "启用思考模式",
+    "maxTokens": "最大令牌数",
+    "temperature": "温度",
+    "topP": "top_p",
+    "topK": "top_k",
+    "presencePenalty": "存在惩罚",
+    "frequencyPenalty": "频率惩罚",
+    "repetitionPenalty": "重复惩罚",
+    "clearHistory": "清空历史",
+    "tryModel": "测试 {{model}} 在 Novita AI 上的表现",
+    "startConversation": "开始对话",
+    "startConversationDesc": "在下方输入消息以开始",
+    "inputPlaceholder": "说点什么..."
   }
 }
